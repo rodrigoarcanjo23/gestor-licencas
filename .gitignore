@@ -22,3 +22,18 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Dependências (não subir, é pesado)
+node_modules
+.pnp
+.pnp.js
+
+# Variáveis de Ambiente (SEGURANÇA!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build
+dist
+dist-ssr

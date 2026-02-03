@@ -1,16 +1,41 @@
-# React + Vite
+# 📑 Gestor de Licenças e Prazos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Sistema web desenvolvido para gerenciamento de documentos corporativos, controle de vencimentos e notificações automáticas. O projeto visa solucionar a perda de prazos de licenças (Alvarás, AVCB, Licenças Ambientais) através de indicadores visuais e relatórios ativos.
 
-Currently, two official plugins are available:
+## 🚀 Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dashboard Visual:**
+  - 🟢 **Verde:** Documentos em dia (> 30 dias).
+  - 🟡 **Amarelo:** Alerta de vencimento (próximos 30 dias).
+  - 🔴 **Vermelho:** Documentos vencidos.
+  
+- **Gestão de Arquivos:**
+  - Upload de arquivos PDF integrados ao Supabase Storage.
+  - Visualização direta do documento sem necessidade de download.
 
-## React Compiler
+- **Notificações Inteligentes:**
+  - **Relatório por E-mail:** Envia um resumo dos documentos críticos via EmailJS.
+  - **Relatório via WhatsApp:** Gera um link com mensagem pré-formatada contendo links e datas dos documentos vencidos/próximos.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Filtros e Busca:**
+  - Busca em tempo real por nome.
+  - Filtro por Status (Vencidos, Alerta, OK).
+  - Filtro por Categorias (PCMSO, AVCB, etc.).
 
-## Expanding the ESLint configuration
+- **Responsividade:** Layout totalmente adaptado para Mobile e Desktop.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Tecnologias Utilizadas
+
+- **Frontend:** React.js + Vite
+- **Banco de Dados & Auth:** Supabase (PostgreSQL)
+- **Armazenamento:** Supabase Storage
+- **Envio de Emails:** EmailJS
+- **Estilização:** CSS Modules / Inline Styles (Custom Design)
+- **Deploy:** Vercel
+
+## ⚙️ Configuração Local
+
+1. **Clone o projeto:**
+   ```bash
+   git clone [https://github.com/SEU_USUARIO/gestor-licencas.git](https://github.com/SEU_USUARIO/gestor-licencas.git)
+   cd gestor-licencas

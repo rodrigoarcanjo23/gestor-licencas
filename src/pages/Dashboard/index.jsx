@@ -28,7 +28,7 @@ const CATEGORIES = [
 const containerStyle = { 
   width: '100%', 
   minHeight: '100vh', 
-  background: '#f4f6f9', // Fundo cinza bem claro
+  background: '#f4f6f9', 
   padding: '40px 20px 80px 20px', 
   display: 'flex', 
   flexDirection: 'column', 
@@ -86,6 +86,8 @@ export default function Dashboard() {
   const [newTitle, setNewTitle] = useState('')
   const [newDate, setNewDate] = useState('')
   const [newCategory, setNewCategory] = useState('')
+  const [newObs, setNewObs] = useState('') // <--- NOVO CAMPO: Observação
+  
   const [uploading, setUploading] = useState(false)
   const [sendingEmail, setSendingEmail] = useState(false)
 
@@ -102,14 +104,13 @@ export default function Dashboard() {
     setLoading(false)
   }
 
-  // --- EXPORTAR EXCEL (HÍBRIDO WEB/NATIVE) ---
+  // --- EXPORTAR EXCEL ---
   async function handleExportExcel() {
     if (docs.length === 0) return alert("Não há dados para exportar.")
 
     try {
         setLoading(true) 
         
-        // Preparar dados
         const dataToExport = docs.map(doc => {
           const days = differenceInDays(parseISO(doc.expiry_date), new Date())
           let status = "Em dia"
@@ -119,22 +120,20 @@ export default function Dashboard() {
           return {
             "Empresa": doc.title,
             "Categoria": doc.category,
+            "Observação": doc.observation || "", // <--- Incluído no Excel
             "Vencimento": format(parseISO(doc.expiry_date), 'dd/MM/yyyy'),
             "Dias Restantes": days,
             "Status": status
           }
         })
 
-        // Criar Planilha
         const worksheet = XLSX.utils.json_to_sheet(dataToExport)
         const workbook = XLSX.utils.book_new()
         XLSX.utils.book_append_sheet(workbook, worksheet, "Relatório")
         
-        // Ajustar largura colunas
-        const wscols = [{wch: 30}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 10}];
+        const wscols = [{wch: 30}, {wch: 25}, {wch: 30}, {wch: 15}, {wch: 15}, {wch: 10}];
         worksheet['!cols'] = wscols;
 
-        // Verificar plataforma (App ou Web)
         if (Capacitor.isNativePlatform()) {
             const excelBase64 = XLSX.write(workbook, { bookType: 'xlsx', type: 'base64' })
             const fileName = `Relatorio_${Date.now()}.xlsx`
@@ -149,9 +148,7 @@ export default function Dashboard() {
                 path: result.uri,
                 mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             })
-
         } else {
-            // Versão Web (Computador)
             XLSX.writeFile(workbook, `Relatorio_${Date.now()}.xlsx`)
         }
 
@@ -179,7 +176,9 @@ export default function Dashboard() {
       const status = days < 0 ? "🔴 [VENCIDO]" : "🟡 [ALERTA]"
       const dataFormatada = format(parseISO(doc.expiry_date), 'dd/MM/yyyy')
       
-      messageText += `${status} *${doc.title}*\n📂 ${doc.category}\n📅 Vence: ${dataFormatada}\n⏳ Restam: ${days} dias\n\n`
+      messageText += `${status} *${doc.title}*\n📂 ${doc.category}\n📅 Vence: ${dataFormatada}\n⏳ Restam: ${days} dias\n`
+      if(doc.observation) messageText += `📝 Obs: ${doc.observation}\n` // Inclui obs no Zap/Email
+      messageText += `\n`
     })
     
     return messageText
@@ -223,25 +222,25 @@ export default function Dashboard() {
   // --- CADASTRO (SALVAR NO BANCO) ---
   async function handleRegister(e) { 
       e.preventDefault(); 
-      if (!newTitle || !newDate || !newCategory) return alert("Preencha todos os campos!"); 
+      if (!newTitle || !newDate || !newCategory) return alert("Preencha todos os campos obrigatórios!"); 
       
       setUploading(true); 
       try { 
           const { data: { user } } = await supabase.auth.getUser(); 
           if(!user) throw new Error("Sem usuário logado");
           
-          // Inserção simples
           const { error } = await supabase.from('documents').insert([{ 
               title: newTitle, 
               expiry_date: newDate, 
               category: newCategory, 
+              observation: newObs, // <--- Enviando a observação
               user_id: user.id
           }]); 
           
           if (error) throw error; 
           
           alert("✅ Salvo com sucesso!"); 
-          setNewTitle(''); setNewDate(''); setNewCategory(''); 
+          setNewTitle(''); setNewDate(''); setNewCategory(''); setNewObs(''); // Limpa tudo
           fetchDocuments() 
 
       } catch (error) { 
@@ -252,7 +251,7 @@ export default function Dashboard() {
       } 
   }
 
-  // --- EXCLUIR (CORRIGIDO) ---
+  // --- EXCLUIR ---
   async function handleDelete(id) {
     if(!confirm("Tem certeza que deseja excluir este documento?")) return;
 
@@ -260,12 +259,12 @@ export default function Dashboard() {
         const { error } = await supabase
             .from('documents')
             .delete()
-            .eq('id', id) // <--- MÉTODO CORRETO
+            .eq('id', id) 
 
         if (error) throw error;
 
         alert("✅ Documento excluído!");
-        fetchDocuments(); // Atualiza a lista
+        fetchDocuments(); 
 
     } catch (error) {
         console.error(error)
@@ -292,7 +291,6 @@ export default function Dashboard() {
       
       {/* HEADER: LOGO E BOTÃO SAIR */}
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: '10px'}}>
-         {/* Logo vinda da pasta PUBLIC */}
          <img src="/logo.png" alt="DOC em dia" style={{height: '60px', objectFit: 'contain'}} />
          
          <button onClick={handleLogout} style={{background:'#fff', border:'1px solid #ccc', color:'#d9534f', padding:'8px 15px', borderRadius:'20px', fontWeight:'bold', cursor:'pointer'}}>
@@ -337,6 +335,17 @@ export default function Dashboard() {
                   <input type="date" value={newDate} onChange={e=>setNewDate(e.target.value)} style={inputStyle}/>
                 </div>
             </div>
+
+            {/* --- NOVO CAMPO: OBSERVAÇÃO --- */}
+            <div>
+              <label style={labelStyle}>Observação (Opcional)</label>
+              <textarea 
+                  placeholder="Ex: Falar com o financeiro sobre a taxa..." 
+                  value={newObs} 
+                  onChange={e=>setNewObs(e.target.value)} 
+                  style={{...inputStyle, height: '80px', resize: 'vertical', fontFamily: 'Arial, sans-serif'}}
+              />
+            </div>
             
             <button disabled={uploading} style={buttonPrimaryStyle}>{uploading ? 'Salvando...' : 'Adicionar'}</button>
         </form>
@@ -360,17 +369,16 @@ export default function Dashboard() {
               {filteredDocs.map(doc => {
                   const days = differenceInDays(parseISO(doc.expiry_date), new Date());
                   
-                  // Lógica Visual dos Cards (Cores)
-                  let borderColor = '#28a745'; // Verde
+                  let borderColor = '#28a745'; 
                   let statusText = 'Em dia';
                   let statusColor = '#28a745';
 
                   if (days < 0) {
-                      borderColor = '#dc3545'; // Vermelho
+                      borderColor = '#dc3545'; 
                       statusText = 'VENCIDO';
                       statusColor = '#dc3545';
                   } else if (days <= 30) {
-                      borderColor = '#ffc107'; // Amarelo
+                      borderColor = '#ffc107'; 
                       statusText = 'ALERTA';
                       statusColor = '#d39e00';
                   }
@@ -381,6 +389,13 @@ export default function Dashboard() {
                             <div>
                                 <strong style={{fontSize:'16px', color:'#333'}}>{doc.title}</strong>
                                 <div style={{color:'#666', fontSize:'13px', marginTop:'2px'}}>{doc.category}</div>
+                                
+                                {/* --- EXIBIR OBSERVAÇÃO --- */}
+                                {doc.observation && (
+                                    <div style={{marginTop:'8px', padding:'8px', background:'#f8f9fa', borderRadius:'6px', fontSize:'13px', color:'#555', fontStyle:'italic'}}>
+                                        📝 "{doc.observation}"
+                                    </div>
+                                )}
                             </div>
                             <div style={{textAlign:'right'}}>
                                 <div style={{fontWeight:'bold', color: statusColor, fontSize:'12px'}}>{statusText}</div>

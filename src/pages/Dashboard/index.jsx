@@ -7,7 +7,6 @@ import * as XLSX from 'xlsx'
 import { Capacitor } from '@capacitor/core'
 import { Filesystem, Directory } from '@capacitor/filesystem' 
 import { FileOpener } from '@capawesome-team/capacitor-file-opener'
-import logoImg from '../../assets/logo.png' // <--- CERTIFIQUE-SE QUE A LOGO ESTÁ NESSA PASTA
 
 // --- 1. CONFIGURAÇÕES FIXAS ---
 const CLIENT_EMAIL = "renatadamasceno@gmail.com"
@@ -157,7 +156,7 @@ export default function Dashboard() {
         }
 
     } catch (error) {
-        console.error(error) // <--- CORREÇÃO AQUI
+        console.error(error)
         alert("Erro ao abrir o arquivo. Verifique se tem um app de planilhas instalado.")
     } finally {
         setLoading(false)
@@ -205,7 +204,7 @@ export default function Dashboard() {
       await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
       alert(`✅ Sucesso! E-mail enviado.`)
     } catch (error) { 
-      console.error(error) // <--- CORREÇÃO AQUI
+      console.error(error)
       alert("❌ Erro ao enviar e-mail.") 
     } finally { 
       setSendingEmail(false) 
@@ -231,7 +230,7 @@ export default function Dashboard() {
           const { data: { user } } = await supabase.auth.getUser(); 
           if(!user) throw new Error("Sem usuário logado");
           
-          // Inserção simples (sem arquivo)
+          // Inserção simples
           const { error } = await supabase.from('documents').insert([{ 
               title: newTitle, 
               expiry_date: newDate, 
@@ -253,10 +252,25 @@ export default function Dashboard() {
       } 
   }
 
+  // --- EXCLUIR (CORRIGIDO) ---
   async function handleDelete(id) {
-    if(!confirm("Tem certeza que deseja excluir?")) return;
-    const { error } = await supabase.from('documents').delete().match({ id })
-    if(!error) fetchDocuments()
+    if(!confirm("Tem certeza que deseja excluir este documento?")) return;
+
+    try {
+        const { error } = await supabase
+            .from('documents')
+            .delete()
+            .eq('id', id) // <--- MÉTODO CORRETO
+
+        if (error) throw error;
+
+        alert("✅ Documento excluído!");
+        fetchDocuments(); // Atualiza a lista
+
+    } catch (error) {
+        console.error(error)
+        alert("Erro ao excluir: " + error.message)
+    }
   }
 
   async function handleLogout() { await supabase.auth.signOut(); navigate('/') }
@@ -278,7 +292,8 @@ export default function Dashboard() {
       
       {/* HEADER: LOGO E BOTÃO SAIR */}
       <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: '10px'}}>
-         <img src={logoImg} alt="DOC em dia" style={{height: '60px', objectFit: 'contain'}} />
+         {/* Logo vinda da pasta PUBLIC */}
+         <img src="/logo.png" alt="DOC em dia" style={{height: '60px', objectFit: 'contain'}} />
          
          <button onClick={handleLogout} style={{background:'#fff', border:'1px solid #ccc', color:'#d9534f', padding:'8px 15px', borderRadius:'20px', fontWeight:'bold', cursor:'pointer'}}>
             Sair

@@ -8,7 +8,7 @@ const containerStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: '#f4f6f9', // Fundo claro
+  background: '#f4f6f9', 
   padding: '20px',
   fontFamily: 'Arial, sans-serif'
 }
@@ -17,7 +17,7 @@ const cardStyle = {
   background: '#ffffff',
   padding: '40px 30px',
   borderRadius: '16px',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.08)', // Sombra suave
+  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
   width: '100%',
   maxWidth: '400px',
   textAlign: 'center',
@@ -40,7 +40,7 @@ const inputStyle = {
 const buttonStyle = {
   width: '100%',
   padding: '14px',
-  background: '#007bff', // Azul DOC em dia
+  background: '#007bff', 
   color: 'white',
   border: 'none',
   borderRadius: '8px',
@@ -70,7 +70,6 @@ export default function Login() {
     setLoading(true)
     
     try {
-      // CORREÇÃO AQUI: Removemos "data" pois não estava sendo usada
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -80,7 +79,6 @@ export default function Login() {
       navigate('/dashboard')
       
     } catch (error) {
-      // O console.error ajuda a ver o erro real no navegador se precisar
       console.error(error)
       alert("Erro ao entrar: " + error.message)
     } finally {
@@ -92,11 +90,12 @@ export default function Login() {
     <div style={containerStyle}>
       <div style={cardStyle}>
         
-        {/* LOGO DA EMPRESA (pasta public) */}
+        {/* LOGO DA EMPRESA (AUMENTADA) */}
+        {/* Mudamos o width de '120px' para '240px' aqui embaixo 👇 */}
         <img 
             src="/logo.png" 
             alt="DOC em dia" 
-            style={{ width: '120px', marginBottom: '20px', objectFit: 'contain' }} 
+            style={{ width: '240px', marginBottom: '25px', objectFit: 'contain' }} 
         />
 
         <h2 style={{color: '#333', marginBottom: '10px', marginTop: 0}}>Bem-vindo</h2>

@@ -1,15 +1,15 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom' // <--- SEM BrowserRouter aqui!
 import Login from './pages/Login'
-import Dashboard from './pages/Dashboard' // Importando o arquivo real
+import Dashboard from './pages/Dashboard'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
-    </BrowserRouter>
+    /* O HashRouter já está lá no main.jsx envolvendo o <App />. 
+       Aqui usamos direto as Routes. */
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+    </Routes>
   )
 }
 

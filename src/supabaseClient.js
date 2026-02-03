@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Agora ele busca os valores do arquivo .env
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// --- COLOQUE AS STRINGS DIRETAS AQUI ---
+const supabaseUrl = 'https://msrxijlattoajnfomlbw.supabase.co'
+const supabaseKey = 'sb_publishable_tMb8fJpVvkmc9ZwLVkl3Ew_UIqvTQQE' 
+// (Essa chave 'anon' é pública, não tem perigo grave de ficar no app por enquanto)
 
 export const supabase = createClient(supabaseUrl, supabaseKey)

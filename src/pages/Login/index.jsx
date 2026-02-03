@@ -1,65 +1,62 @@
 import { useState } from 'react'
 import { supabase } from '../../supabaseClient'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
-// Adicionei um estilo global para o corpo da página ficar escuro, combinando com o form
-const pageStyle = {
-  height: '100vh',
-  width: '100vw', // <--- ADICIONE ISSO (Ocupa 100% da largura da janela)
+// --- ESTILOS (LIGHT MODE - DOC EM DIA) ---
+const containerStyle = {
+  minHeight: '100vh',
   display: 'flex',
-  justifyContent: 'center',
   alignItems: 'center',
-  backgroundColor: '#1a1a1a',
-  color: '#fff',
-  fontFamily: 'Arial, sans-serif',
-  position: 'fixed', // <--- ADICIONE ISSO (Garante que fique fixo sobre tudo)
-  top: 0,
-  left: 0
+  justifyContent: 'center',
+  background: '#f4f6f9', // Fundo claro
+  padding: '20px',
+  fontFamily: 'Arial, sans-serif'
 }
 
-const formContainerStyle = {
-  background: '#2a2a2a', // Um cinza um pouco mais claro para o card
-  padding: '40px',
-  borderRadius: '12px',
-  boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+const cardStyle = {
+  background: '#ffffff',
+  padding: '40px 30px',
+  borderRadius: '16px',
+  boxShadow: '0 4px 20px rgba(0,0,0,0.08)', // Sombra suave
   width: '100%',
-  maxWidth: '400px', // Largura máxima do cartão de login
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '20px',
-  textAlign: 'center'
+  maxWidth: '400px',
+  textAlign: 'center',
+  border: '1px solid #eee'
 }
 
 const inputStyle = {
-  padding: '15px',
+  width: '100%',
+  padding: '14px',
+  marginBottom: '15px',
   borderRadius: '8px',
-  border: '1px solid #444',
-  background: '#333',
-  color: '#fff',
+  border: '1px solid #ddd',
+  background: '#fff',
+  color: '#333',
+  fontSize: '15px',
+  outline: 'none',
+  boxSizing: 'border-box'
+}
+
+const buttonStyle = {
+  width: '100%',
+  padding: '14px',
+  background: '#007bff', // Azul DOC em dia
+  color: 'white',
+  border: 'none',
+  borderRadius: '8px',
+  cursor: 'pointer',
   fontSize: '16px',
-  outline: 'none'
-}
-
-const buttonPrimaryStyle = {
-  padding: '15px',
-  borderRadius: '8px',
-  border: 'none',
-  background: '#007bff', // Azul padrão, pode mudar para a cor da sua marca
-  color: '#fff',
-  fontSize: '18px',
   fontWeight: 'bold',
-  cursor: 'pointer',
-  transition: 'background 0.2s'
+  marginTop: '10px',
+  transition: '0.2s'
 }
 
-const buttonSecondaryStyle = {
-  padding: '10px',
-  background: 'transparent',
-  border: 'none',
-  color: '#aaa',
-  cursor: 'pointer',
-  textDecoration: 'underline',
-  fontSize: '14px'
+const linkStyle = {
+  color: '#007bff',
+  textDecoration: 'none',
+  fontSize: '14px',
+  marginTop: '20px',
+  display: 'inline-block'
 }
 
 export default function Login() {
@@ -68,78 +65,73 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  const handleLogin = async (e) => {
+  async function handleLogin(e) {
     e.preventDefault()
     setLoading(true)
     
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
+    try {
+      // CORREÇÃO AQUI: Removemos "data" pois não estava sendo usada
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
 
-    if (error) {
-      alert("Erro ao logar: " + error.message)
-    } else {
+      if (error) throw error
       navigate('/dashboard')
+      
+    } catch (error) {
+      // O console.error ajuda a ver o erro real no navegador se precisar
+      console.error(error)
+      alert("Erro ao entrar: " + error.message)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
-  }
-
-  const handleSignUp = async () => {
-    setLoading(true)
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
-
-    if (error) {
-      alert("Erro ao cadastrar: " + error.message)
-    } else {
-      alert("Usuário criado com sucesso! Fazendo login...")
-      navigate('/dashboard')
-    }
-    setLoading(false)
   }
 
   return (
-    <div style={pageStyle}>
-      <form onSubmit={handleLogin} style={formContainerStyle}>
-        <h2 style={{ margin: '0 0 10px 0' }}>Acesso ao Sistema</h2>
-        <p style={{ color: '#aaa', margin: 0 }}>Gerenciador de Documentos</p>
+    <div style={containerStyle}>
+      <div style={cardStyle}>
         
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
+        {/* LOGO DA EMPRESA (pasta public) */}
+        <img 
+            src="/logo.png" 
+            alt="DOC em dia" 
+            style={{ width: '120px', marginBottom: '20px', objectFit: 'contain' }} 
+        />
+
+        <h2 style={{color: '#333', marginBottom: '10px', marginTop: 0}}>Bem-vindo</h2>
+        <p style={{color: '#666', fontSize: '14px', marginBottom: '30px'}}>
+            Faça login para gerenciar os vencimentos.
+        </p>
+
+        <form onSubmit={handleLogin}>
           <input
             type="email"
             placeholder="Seu e-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
             style={inputStyle}
+            required
           />
-          
           <input
             type="password"
             placeholder="Sua senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
             style={inputStyle}
+            required
           />
+          <button disabled={loading} style={buttonStyle}>
+            {loading ? 'Entrando...' : 'Entrar no Sistema'}
+          </button>
+        </form>
+
+        <div style={{marginTop: '20px'}}>
+             <span style={{color: '#888', fontSize: '14px'}}>Ainda não tem conta? </span>
+             <Link to="/register" style={linkStyle}>Criar conta</Link>
         </div>
 
-        <button type="submit" disabled={loading} style={buttonPrimaryStyle}>
-          {loading ? 'Carregando...' : 'Entrar'}
-        </button>
-
-        <button 
-          type="button" 
-          onClick={handleSignUp} 
-          disabled={loading}
-          style={buttonSecondaryStyle}
-        >
-          Não tem conta? Cadastrar
-        </button>
-      </form>
+      </div>
     </div>
   )
 }

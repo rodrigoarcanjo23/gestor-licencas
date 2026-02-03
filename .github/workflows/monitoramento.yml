@@ -1,0 +1,31 @@
+name: Alerta de Vencimentos Diário
+
+on:
+  schedule:
+    # Roda todos os dias às 11:00 UTC (08:00 Horário de Brasília)
+    - cron: '0 11 * * *'
+  workflow_dispatch: # Permite você clicar num botão "Rodar Agora" para testar
+
+jobs:
+  verificar-vencimentos:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Baixar Código
+        uses: actions/checkout@v3
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Instalar Dependência do Supabase
+        run: npm install @supabase/supabase-js
+
+      - name: Executar Robô de Verificação
+        run: node scripts/check-vencimentos.js
+        env:
+          # Estas variáveis a gente configura no site do GitHub
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          EMAILJS_PRIVATE_KEY: ${{ secrets.EMAILJS_PRIVATE_KEY }}

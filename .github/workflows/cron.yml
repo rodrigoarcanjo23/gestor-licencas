@@ -1,0 +1,26 @@
+name: Verificação Diária de Vencimentos
+
+on:
+  schedule:
+    # Roda todo dia as 11:00 UTC (08:00 Horário de Brasília)
+    - cron: '0 11 * * *' 
+  workflow_dispatch: # Permite rodar manualmente clicando num botão
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      
+      - name: Instalar Dependências
+        run: npm install @supabase/supabase-js
+
+      - name: Rodar Script
+        run: node scripts/check-vencimentos.js
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          EMAILJS_PRIVATE_KEY: ${{ secrets.EMAILJS_PRIVATE_KEY }}

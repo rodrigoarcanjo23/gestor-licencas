@@ -1,41 +1,67 @@
-# 📑 Gestor de Licenças e Prazos
+# 📂 DOC em dia - Gestão Inteligente de Documentos
 
-Sistema web desenvolvido para gerenciamento de documentos corporativos, controle de vencimentos e notificações automáticas. O projeto visa solucionar a perda de prazos de licenças (Alvarás, AVCB, Licenças Ambientais) através de indicadores visuais e relatórios ativos.
+![Status](https://img.shields.io/badge/Status-Concluído-success)
+![Platform](https://img.shields.io/badge/Plataforma-Web%20%7C%20Android-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## 🚀 Funcionalidades
+> Uma solução Cross-Platform para monitoramento de vencimentos legais, garantindo conformidade (compliance) e evitando multas operacionais.
 
-- **Dashboard Visual:**
-  - 🟢 **Verde:** Documentos em dia (> 30 dias).
-  - 🟡 **Amarelo:** Alerta de vencimento (próximos 30 dias).
-  - 🔴 **Vermelho:** Documentos vencidos.
-  
-- **Gestão de Arquivos:**
-  - Upload de arquivos PDF integrados ao Supabase Storage.
-  - Visualização direta do documento sem necessidade de download.
+---
 
-- **Notificações Inteligentes:**
-  - **Relatório por E-mail:** Envia um resumo dos documentos críticos via EmailJS.
-  - **Relatório via WhatsApp:** Gera um link com mensagem pré-formatada contendo links e datas dos documentos vencidos/próximos.
+## 🎯 Sobre o Projeto
 
-- **Filtros e Busca:**
-  - Busca em tempo real por nome.
-  - Filtro por Status (Vencidos, Alerta, OK).
-  - Filtro por Categorias (PCMSO, AVCB, etc.).
+O **DOC em dia** é um sistema de gestão desenvolvido para solucionar um problema real: a perda de prazos de documentos regulatórios (Alvarás, Licenças Sanitárias, Certificados Digitais). 
 
-- **Responsividade:** Layout totalmente adaptado para Mobile e Desktop.
+O sistema centraliza as informações, calcula automaticamente os prazos e notifica os gestores proativamente através de múltiplos canais (App Mobile, E-mail e Relatórios Excel).
 
-## 🛠️ Tecnologias Utilizadas
+### 📱 Funcionalidades Principais
 
-- **Frontend:** React.js + Vite
-- **Banco de Dados & Auth:** Supabase (PostgreSQL)
-- **Armazenamento:** Supabase Storage
-- **Envio de Emails:** EmailJS
-- **Estilização:** CSS Modules / Inline Styles (Custom Design)
-- **Deploy:** Vercel
+* **Dashboard Visual:** Indicadores de status por cores (🟢 Em dia, 🟡 Alerta 30 dias, 🔴 Vencido).
+* **Automação Serverless:** Script autônomo rodando via **GitHub Actions** que verifica o banco de dados diariamente às 08:00 e envia relatórios por e-mail.
+* **App Android Nativo:**
+    * Login persistente (Session Management).
+    * **Notificações Locais:** O app alerta o usuário sobre vencimentos mesmo fechado.
+    * Integração com Sistema de Arquivos para geração e abertura de planilhas Excel direto no celular.
+* **Gestão Completa:** CRUD de documentos com categorização e campos de observação.
 
-## ⚙️ Configuração Local
+---
 
-1. **Clone o projeto:**
-   ```bash
-   git clone [https://github.com/SEU_USUARIO/gestor-licencas.git](https://github.com/SEU_USUARIO/gestor-licencas.git)
-   cd gestor-licencas
+## 🚀 Tecnologias Utilizadas
+
+O projeto foi construído utilizando uma arquitetura moderna, focada em escalabilidade e baixo custo de manutenção.
+
+### Front-end & Mobile
+* **React.js (Vite):** Para construção da interface reativa e veloz.
+* **Capacitor:** Bridge para converter a aplicação Web em um App Android Nativo (`.apk`).
+* **Plugins Nativos:** * `@capacitor/local-notifications` (Alertas Push Locais).
+    * `@capacitor/filesystem` (Gerenciamento de arquivos internos).
+    * `@capawesome-team/capacitor-file-opener` (Abertura de anexos/Excel).
+
+### Back-end & Database (BaaS)
+* **Supabase:**
+    * **PostgreSQL:** Banco de dados relacional robusto.
+    * **Auth:** Gerenciamento de usuários e sessões seguras.
+    * **RLS (Row Level Security):** Políticas de segurança onde cada usuário acessa apenas seus próprios dados.
+
+### Automação & DevOps
+* **GitHub Actions (CI/CD):** Cron jobs para execução de scripts de verificação diária.
+* **Node.js:** Script de backend para lógica de varredura de datas.
+* **EmailJS:** Serviço de disparo de e-mails transacionais sem necessidade de servidor SMTP dedicado.
+
+---
+
+## 🛠️ Arquitetura da Solução
+
+```mermaid
+graph TD
+    User[Usuário / Gestor] -->|Acessa| App[App Android / Web]
+    App -->|Leitura/Escrita| DB[(Supabase PostgreSQL)]
+    
+    subgraph "Automação (GitHub Actions)"
+        Cron[Cron Job Diário 08:00] -->|Executa| NodeScript[Script de Verificação]
+        NodeScript -->|Consulta Vencimentos| DB
+        NodeScript -->|Envia Relatório| Email[EmailJS API]
+    end
+    
+    Email -->|Notifica| User
+    App -->|Notificação Local| User

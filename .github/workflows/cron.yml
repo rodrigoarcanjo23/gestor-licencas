@@ -9,11 +9,11 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    steps:
+   steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '22.x'  # <--- AQUI: Mude para '22.x'
       
       - name: Instalar Dependências
         run: npm install @supabase/supabase-js

@@ -9,7 +9,7 @@ on:
 jobs:
   verificar-vencimentos:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Baixar Código
         uses: actions/checkout@v4
@@ -17,7 +17,7 @@ jobs:
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '22.x'
 
       - name: Instalar Dependência do Supabase
         run: npm install @supabase/supabase-js

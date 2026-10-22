@@ -1,136 +1,53 @@
 import { useState } from 'react'
 import { supabase } from '../../supabaseClient'
 import { useNavigate, Link } from 'react-router-dom'
-
-// --- ESTILOS (LIGHT MODE - DOC EM DIA) ---
-const containerStyle = {
-  minHeight: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  background: '#f4f6f9', 
-  padding: '20px',
-  fontFamily: 'Arial, sans-serif'
-}
-
-const cardStyle = {
-  background: '#ffffff',
-  padding: '40px 30px',
-  borderRadius: '16px',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-  width: '100%',
-  maxWidth: '400px',
-  textAlign: 'center',
-  border: '1px solid #eee'
-}
-
-const inputStyle = {
-  width: '100%',
-  padding: '14px',
-  marginBottom: '15px',
-  borderRadius: '8px',
-  border: '1px solid #ddd',
-  background: '#fff',
-  color: '#333',
-  fontSize: '15px',
-  outline: 'none',
-  boxSizing: 'border-box'
-}
-
-const buttonStyle = {
-  width: '100%',
-  padding: '14px',
-  background: '#007bff', 
-  color: 'white',
-  border: 'none',
-  borderRadius: '8px',
-  cursor: 'pointer',
-  fontSize: '16px',
-  fontWeight: 'bold',
-  marginTop: '10px',
-  transition: '0.2s'
-}
-
-const linkStyle = {
-  color: '#007bff',
-  textDecoration: 'none',
-  fontSize: '14px',
-  marginTop: '20px',
-  display: 'inline-block'
-}
+import AuthLayout from '../../components/AuthLayout'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   async function handleLogin(e) {
     e.preventDefault()
     setLoading(true)
-    
+    setError('')
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
       navigate('/dashboard')
-      
     } catch (error) {
       console.error(error)
-      alert("Erro ao entrar: " + error.message)
+      setError('Não foi possível entrar: ' + error.message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        
-        {/* LOGO DA EMPRESA (AUMENTADA) */}
-        {/* Mudamos o width de '120px' para '240px' aqui embaixo 👇 */}
-        <img 
-            src="/logo.png" 
-            alt="DOC em dia" 
-            style={{ width: '240px', marginBottom: '25px', objectFit: 'contain' }} 
-        />
-
-        <h2 style={{color: '#333', marginBottom: '10px', marginTop: 0}}>Bem-vindo</h2>
-        <p style={{color: '#666', fontSize: '14px', marginBottom: '30px'}}>
-            Faça login para gerenciar os vencimentos.
-        </p>
-
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Seu e-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={inputStyle}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Sua senha"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={inputStyle}
-            required
-          />
-          <button disabled={loading} style={buttonStyle}>
-            {loading ? 'Entrando...' : 'Entrar no Sistema'}
-          </button>
-        </form>
-
-        <div style={{marginTop: '20px'}}>
-             <span style={{color: '#888', fontSize: '14px'}}>Ainda não tem conta? </span>
-             <Link to="/register" style={linkStyle}>Criar conta</Link>
+    <AuthLayout
+      title="Bem-vindo de volta"
+      subtitle="Faça login para gerenciar os vencimentos."
+      footer={<>Ainda não tem conta?<Link to="/register">Criar conta</Link></>}
+    >
+      <form className="form" onSubmit={handleLogin}>
+        <div className="field">
+          <label htmlFor="email">E-mail</label>
+          <input id="email" className="input" type="email" placeholder="seu@email.com" autoComplete="email"
+            value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
-
-      </div>
-    </div>
+        <div className="field">
+          <label htmlFor="password">Senha</label>
+          <input id="password" className="input" type="password" placeholder="Sua senha" autoComplete="current-password"
+            value={password} onChange={(e) => setPassword(e.target.value)} required />
+        </div>
+        {error && <p className="auth__msg auth__msg--error" role="alert">{error}</p>}
+        <button className="btn btn--primary btn--block" disabled={loading}>
+          {loading ? 'Entrando...' : 'Entrar no sistema'}
+        </button>
+      </form>
+    </AuthLayout>
   )
 }

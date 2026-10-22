@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
 const KEY = 'docemdia-theme'
 
@@ -15,14 +15,20 @@ export function applyInitialTheme() {
   document.documentElement.dataset.theme = getInitialTheme()
 }
 
+// O tema fica no atributo data-theme do <html>; todos os botões leem dali
+function subscribe(callback) {
+  const obs = new MutationObserver(callback)
+  obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+  return () => obs.disconnect()
+}
+const getSnapshot = () => document.documentElement.dataset.theme || 'light'
+
 export function useTheme() {
-  const [theme, setTheme] = useState(() => document.documentElement.dataset.theme || getInitialTheme())
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try { localStorage.setItem(KEY, theme) } catch { /* ignora */ }
-  }, [theme])
-
-  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+  const theme = useSyncExternalStore(subscribe, getSnapshot)
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.dataset.theme = next
+    try { localStorage.setItem(KEY, next) } catch { /* ignora */ }
+  }
   return { theme, toggleTheme }
 }

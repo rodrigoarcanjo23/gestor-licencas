@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useCallback, useState } from 'react'
 import { FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi'
 

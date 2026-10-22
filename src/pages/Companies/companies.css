@@ -1,0 +1,41 @@
+.company-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+
+.company-card {
+  --tone: var(--success);
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 14px; padding: 20px 18px 10px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); transition: box-shadow .18s, transform .18s;
+}
+.company-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--tone); }
+.company-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.company-card.is-vencido { --tone: var(--danger); }
+.company-card.is-alerta { --tone: var(--warning); }
+.company-card.is-renovacao { --tone: var(--info); }
+.company-card.skeleton { height: 230px; border: none; background: linear-gradient(90deg, var(--skeleton-a) 25%, var(--skeleton-b) 50%, var(--skeleton-a) 75%); background-size: 200% 100%; animation: shimmer 1.2s infinite; }
+.company-card.skeleton::before { display: none; }
+
+.company-card__head { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.company-card__icon {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 42px; height: 42px; border-radius: 12px; background: var(--primary-50); color: var(--primary); font-size: 19px;
+}
+.company-card__title { min-width: 0; }
+.company-card__title h3 { font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.company-card__title span { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.company-card__contact { list-style: none; display: grid; gap: 6px; font-size: 13.5px; color: var(--text-2); }
+.company-card__contact li { display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.company-card__contact svg { color: var(--muted); flex-shrink: 0; }
+.company-card__contact em { color: var(--muted); font-style: normal; }
+
+.company-card__stats { display: flex; flex-wrap: wrap; gap: 6px; }
+.mini { padding: 3px 10px; border-radius: 99px; font-size: 12.5px; background: var(--surface-2); color: var(--text-2); }
+.mini--vencido { background: var(--danger-50); color: var(--danger); }
+.mini--alerta { background: var(--warning-50); color: var(--warning-text); }
+.mini--renovacao { background: var(--info-50); color: var(--info); }
+.mini--ok { background: var(--success-50); color: var(--success); font-weight: 600; }
+
+@media (max-width: 640px) {
+  .company-grid { grid-template-columns: 1fr; gap: 12px; }
+}

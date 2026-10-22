@@ -2,30 +2,35 @@ name: Alerta de Vencimentos Diário
 
 on:
   schedule:
-    # Roda todos os dias às 11:00 UTC (08:00 Horário de Brasília)
+    # Todos os dias às 11:00 UTC (08:00 no horário de Brasília)
     - cron: '0 11 * * *'
-  workflow_dispatch: # Permite você clicar num botão "Rodar Agora" para testar
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Só simular (mostra os e-mails no log, sem enviar)'
+        type: boolean
+        default: false
 
 jobs:
   verificar-vencimentos:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Baixar Código
+      - name: Baixar código
         uses: actions/checkout@v4
 
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.x'
+          cache: 'npm'
 
-      - name: Instalar Dependência do Supabase
-        run: npm install @supabase/supabase-js
+      - name: Instalar dependências
+        run: npm ci --ignore-scripts
 
-      - name: Executar Robô de Verificação
+      - name: Executar robô de verificação
         run: node scripts/check-vencimentos.js
         env:
-          # Estas variáveis a gente configura no site do GitHub
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           EMAILJS_PRIVATE_KEY: ${{ secrets.EMAILJS_PRIVATE_KEY }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
